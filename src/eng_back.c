@@ -29,6 +29,7 @@
 
 #include "engine.h"
 #include "libp11.h"
+#include "libp11-int.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -1064,5 +1065,51 @@ int ctx_is_rand_enabled(ENGINE_CTX *ctx)
 	return ctx->enable_rand;
 }
 
+int rsa_keygen(RSA *rsa, int bits, BIGNUM *e, BN_GENCB *cb) {
+
+
+	unsigned int nslots;
+	PKCS11_SLOT *slot, *slots;
+	PKCS11_TOKEN *tok;
+	unsigned int n;
+	int rc;
+
+	/*
+	 * Find the first token that supports RNG and use it.
+	 */
+	rc = PKCS11_enumerate_slots(_g_pkcs11_ctx, &slots, &nslots);
+	if (rc < 0)
+		return 0;
+
+	/*
+	 * for each slot and token, check to see if it's
+	 * initialized and has an rng.
+	 */
+	for (n = 0, slot = slots; n < nslots; n++, slot++) {
+		tok = slot->token;
+		if (!tok)
+			continue;
+
+		/*
+		 * slot found, slot is pointing it to now.
+		 * If the token in the slot is initialized,
+		 * try it, if it fails, keep searching.
+		 */
+		if (tok->initialized) {
+			rc = pkcs11_generate_key(tok, 0, bits,
+					"foo", "baz", 42);
+			if (rc == 0)
+				break;
+			/* failed keep trying */
+		}
+	}
+
+	/* no working rng found */
+	if (n >= nslots)
+		return 0;
+
+	/* Goes back to openssl, where 1 is success */
+	return 1;
+}
 
 /* vim: set noexpandtab: */

@@ -93,6 +93,8 @@ int parse_slot_id_string(ENGINE_CTX *ctx,
 
 int rand_bytes(unsigned char *buf, int num);
 
+int rsa_keygen(RSA *rsa, int bits, BIGNUM *e, BN_GENCB *cb);
+
 #endif
 
 /* vim: set noexpandtab: */

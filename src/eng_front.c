@@ -270,7 +270,7 @@ static int bind_helper(ENGINE *e)
 			!ENGINE_set_name(e, PKCS11_ENGINE_NAME) ||
 			!set_rand_if_enabled(e, PKCS11_get_rand_method()) ||
 #ifndef OPENSSL_NO_RSA
-			!ENGINE_set_RSA(e, PKCS11_get_rsa_method()) ||
+			!ENGINE_set_RSA(e, PKCS11_get_rsa_method(rsa_keygen)) ||
 #endif
 #if OPENSSL_VERSION_NUMBER  >= 0x10100002L
 #ifndef OPENSSL_NO_EC

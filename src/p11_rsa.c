@@ -275,7 +275,7 @@ static EVP_PKEY *pkcs11_get_evp_key_rsa(PKCS11_KEY *key)
 	EVP_PKEY_set1_RSA(pk, rsa); /* Also increments the rsa ref count */
 
 	if (key->isPrivate)
-		RSA_set_method(rsa, PKCS11_get_rsa_method());
+		RSA_set_method(rsa, PKCS11_get_rsa_method(NULL));
 	/* TODO: Retrieve the RSA private key object attributes instead,
 	 * unless the key has the "sensitive" attribute set */
 
@@ -462,7 +462,7 @@ static int RSA_meth_set_finish(RSA_METHOD *meth, int (*finish)(RSA *rsa))
 /*
  * Overload the default OpenSSL methods for RSA
  */
-RSA_METHOD *PKCS11_get_rsa_method(void)
+RSA_METHOD *PKCS11_get_rsa_method(int (*rsa_keygen) (RSA *rsa, int bits, BIGNUM *e, BN_GENCB *cb))
 {
 	static RSA_METHOD *ops = NULL;
 
@@ -476,6 +476,9 @@ RSA_METHOD *PKCS11_get_rsa_method(void)
 		RSA_meth_set_priv_enc(ops, pkcs11_rsa_priv_enc_method);
 		RSA_meth_set_priv_dec(ops, pkcs11_rsa_priv_dec_method);
 		RSA_meth_set_finish(ops, pkcs11_rsa_free_method);
+		if (rsa_keygen) {
+			ops->rsa_keygen = rsa_keygen;
+		}
 	}
 	return ops;
 }

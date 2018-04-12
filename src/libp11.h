@@ -386,7 +386,7 @@ extern int PKCS11_generate_random(PKCS11_SLOT *slot, unsigned char *r, unsigned 
 /*
  * PKCS#11 implementation for OpenSSL methods
  */
-RSA_METHOD *PKCS11_get_rsa_method(void);
+RSA_METHOD *PKCS11_get_rsa_method(int (*rsa_keygen) (RSA *rsa, int bits, BIGNUM *e, BN_GENCB *cb));
 /* Also define unsupported methods to retain backward compatibility */
 #if OPENSSL_VERSION_NUMBER >= 0x10100002L && !defined(LIBRESSL_VERSION_NUMBER)
 EC_KEY_METHOD *PKCS11_get_ec_key_method(void);

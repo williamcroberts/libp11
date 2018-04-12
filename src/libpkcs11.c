@@ -65,6 +65,7 @@ C_LoadModule(const char *mspec, CK_FUNCTION_LIST_PTR_PTR funcs)
 	mod->handle = LoadLibraryA(mspec);
 #else
 	mod->handle = dlopen(mspec, RTLD_NOW);
+	printf("dlerror: %s\n", dlerror());
 #endif
 
 	if (mod->handle == NULL)
